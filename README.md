@@ -6,12 +6,12 @@ Users can define an oracle using either Chainlink feeds or UniswapV3 oracles.  I
 ### DEFINITIONS
 **Maker** - bet/escrow creator  
 **Taker** - user who accepts terms of a bet/escrow  
-**SkinToken** - Token used as collateral to settle a bet/escrow  
+**CollateralToken** - Token used as collateral to settle a bet/escrow  
 **PriceLine** - Price at which the bet/escrow is determined  
 
-Currently any token can be used as the 'SkinToken' (collateral) in the bet however this may need to be limited in future versions as rebase tokens will negatively affect the account based system currently in use.  Both the 'Maker' and 'Taker' have to use the same SkinToken for a bet.
+Currently any token can be used as the 'CollateralToken' (collateral) in the bet however this may need to be limited in future versions as rebase tokens will negatively affect the account based system currently in use.  Both the 'Maker' and 'Taker' have to use the same CollateralToken for a bet.
 
-Currently, anyone can close a bet/escrow once all necessary checks are cleared.  
+Currently, anyone can close a bet/escrow once all necessary checks are cleared which allows for Chainlink Automation to close bets once all necessary conditions are met.  
 
 Maker can define taker address as "0x0000000000000000000000000000000000000000" allowing anyone to be Taker or they can limit it to a specific address.
 

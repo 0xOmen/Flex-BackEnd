@@ -62,7 +62,7 @@ contract Flex is Context, Ownable {
     struct BetAddresses {
         address Maker; // stores address of bet creator via msg.sender
         address Taker; // stores address of taker, is either defined by the bet Maker or is blank so anyone can take the bet
-        address SkinToken; // address of the token used as medium of exchange in the bet
+        address CollateralToken; // address of the token used as medium of exchange in the bet
         address OracleAddressMain; // address of the Main price oracle that the bet will use (if Uniswap then this is token0)
         address OracleAddress2; // address of a secondary oracle if two are needed (if Uniswap then this is token1)
     }
@@ -85,7 +85,7 @@ contract Flex is Context, Ownable {
     // this struct stores bets which will be assigned a BetNumber to be mapped to
     struct Bets {
         BetAddresses betAddresses; // struct to store all bet addresses
-        uint BetAmount; // ammount of SkinToken to be bet with
+        uint BetAmount; // ammount of CollateralToken to be bet with
         uint EndTime; // unix time that bet ends, user defines number of seconds from time the bet creation Tx is approved
         Status BetStatus; // Status of bet as enum: WAITING_FOR_TAKER, KILLED, IN_PROCESS, SETTLED, CANCELED
         OracleType OracleName; // enum defining what type of oracle to use
@@ -205,7 +205,8 @@ contract Flex is Context, Ownable {
     ) internal {
         AllBets[BetNumber].betAddresses.Maker = _betAddresses.Maker;
         AllBets[BetNumber].betAddresses.Taker = _betAddresses.Taker;
-        AllBets[BetNumber].betAddresses.SkinToken = _betAddresses.SkinToken;
+        AllBets[BetNumber].betAddresses.CollateralToken = _betAddresses
+            .CollateralToken;
         AllBets[BetNumber].BetAmount = _amount;
         AllBets[BetNumber].EndTime = block.timestamp + _time;
         AllBets[BetNumber].BetStatus = Status.WAITING_FOR_TAKER;
@@ -236,7 +237,7 @@ contract Flex is Context, Ownable {
 
     function betWithUserBalance(
         address _takerAddress,
-        address _skinTokenAddress,
+        address _collateralTokenAddress,
         uint _amount,
         uint32 _time,
         address _oracleAddressMain,
@@ -250,8 +251,8 @@ contract Flex is Context, Ownable {
         require(_takerAddress != msg.sender, "Maker = Taker");
         //Check that Maker has required amount of tokens for bet
         require(
-            balances[msg.sender][_skinTokenAddress].depositedBalance -
-                balances[msg.sender][_skinTokenAddress].escrowedBalance >=
+            balances[msg.sender][_collateralTokenAddress].depositedBalance -
+                balances[msg.sender][_collateralTokenAddress].escrowedBalance >=
                 _amount,
             "Insufficient Funds"
         );
@@ -261,7 +262,7 @@ contract Flex is Context, Ownable {
         BetAddresses memory _betAddresses;
         _betAddresses.Maker = msg.sender;
         _betAddresses.Taker = _takerAddress; // can be 0x0000000000000000000000000000000000000000
-        _betAddresses.SkinToken = _skinTokenAddress;
+        _betAddresses.CollateralToken = _collateralTokenAddress;
         _betAddresses.OracleAddressMain = _oracleAddressMain;
         _betAddresses.OracleAddress2 = _oracleAddress2;
         createNewBet(
@@ -276,11 +277,14 @@ contract Flex is Context, Ownable {
 
         UserBets[msg.sender].push(BetNumber);
         emit betCreated(_betAddresses.Maker, _betAddresses.Taker, BetNumber);
-        balances[msg.sender][_skinTokenAddress].escrowedBalance += _amount;
+        balances[msg.sender][_collateralTokenAddress]
+            .escrowedBalance += _amount;
     }
 
     function cancelBet(uint _betNumber) public {
-        address _tokenAddress = AllBets[_betNumber].betAddresses.SkinToken;
+        address _tokenAddress = AllBets[_betNumber]
+            .betAddresses
+            .CollateralToken;
 
         // Check that request was sent by bet Maker
         require(msg.sender == AllBets[_betNumber].betAddresses.Maker, "!Maker");
@@ -317,10 +321,12 @@ contract Flex is Context, Ownable {
         );
         // check that Taker has required amount of tokens
         require(
-            balances[msg.sender][AllBets[_betNumber].betAddresses.SkinToken]
-                .depositedBalance -
-                balances[msg.sender][AllBets[_betNumber].betAddresses.SkinToken]
-                    .escrowedBalance >=
+            balances[msg.sender][
+                AllBets[_betNumber].betAddresses.CollateralToken
+            ].depositedBalance -
+                balances[msg.sender][
+                    AllBets[_betNumber].betAddresses.CollateralToken
+                ].escrowedBalance >=
                 AllBets[_betNumber].BetAmount,
             "Insufficient Funds"
         );
@@ -333,7 +339,7 @@ contract Flex is Context, Ownable {
         AllBets[_betNumber].BetStatus = Status.IN_PROCESS;
         UserBets[msg.sender].push(_betNumber);
         emit betTaken(_betNumber);
-        balances[msg.sender][AllBets[_betNumber].betAddresses.SkinToken]
+        balances[msg.sender][AllBets[_betNumber].betAddresses.CollateralToken]
             .escrowedBalance += AllBets[_betNumber].BetAmount;
     }
 
@@ -382,7 +388,7 @@ contract Flex is Context, Ownable {
             settleBalances(
                 AllBets[_betNumber].betAddresses.Maker,
                 AllBets[_betNumber].betAddresses.Taker,
-                AllBets[_betNumber].betAddresses.SkinToken,
+                AllBets[_betNumber].betAddresses.CollateralToken,
                 AllBets[_betNumber].BetAmount
             );
         } else {
@@ -390,7 +396,7 @@ contract Flex is Context, Ownable {
             settleBalances(
                 AllBets[_betNumber].betAddresses.Taker,
                 AllBets[_betNumber].betAddresses.Maker,
-                AllBets[_betNumber].betAddresses.SkinToken,
+                AllBets[_betNumber].betAddresses.CollateralToken,
                 AllBets[_betNumber].BetAmount
             );
         }
@@ -399,17 +405,17 @@ contract Flex is Context, Ownable {
     function settleBalances(
         address _winningAddress,
         address _losingAddress,
-        address _skinToken,
+        address _collateralToken,
         uint amount
     ) internal {
         // This should use SafeMath!!!!!!!!!!!!!!
-        balances[_losingAddress][_skinToken].depositedBalance -= amount;
-        balances[_losingAddress][_skinToken].escrowedBalance -= amount;
-        balances[_winningAddress][_skinToken].depositedBalance +=
+        balances[_losingAddress][_collateralToken].depositedBalance -= amount;
+        balances[_losingAddress][_collateralToken].escrowedBalance -= amount;
+        balances[_winningAddress][_collateralToken].depositedBalance +=
             (amount * (10000 - PROTOCOL_FEE)) /
             10000;
-        balances[_winningAddress][_skinToken].escrowedBalance -= amount;
-        balances[address(this)][_skinToken].depositedBalance +=
+        balances[_winningAddress][_collateralToken].escrowedBalance -= amount;
+        balances[address(this)][_collateralToken].depositedBalance +=
             (amount * PROTOCOL_FEE) /
             10000;
     }
@@ -448,10 +454,10 @@ contract Flex is Context, Ownable {
             emit betCanceled(_betNumber);
             AllBets[_betNumber].BetStatus = Status.CANCELED;
             balances[AllBets[_betNumber].betAddresses.Maker][
-                AllBets[_betNumber].betAddresses.SkinToken
+                AllBets[_betNumber].betAddresses.CollateralToken
             ].escrowedBalance -= AllBets[_betNumber].BetAmount;
             balances[AllBets[_betNumber].betAddresses.Taker][
-                AllBets[_betNumber].betAddresses.SkinToken
+                AllBets[_betNumber].betAddresses.CollateralToken
             ].escrowedBalance -= AllBets[_betNumber].BetAmount;
         }
     }
