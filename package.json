@@ -1,0 +1,32 @@
+{
+  "name": "Flex-BackEnd",
+  "version": "0.1.0",
+  "description": "P2P escrow app powered by Chainlink and Uniswap oracles",
+  "main": "index.js",
+  "author": "0xOmen",
+  "license": "MIT",
+  "private": false,
+  "devDependencies": {
+    "@nomicfoundation/hardhat-chai-matchers": "^2.0.2",
+    "@nomicfoundation/hardhat-ethers": "^3.0.4",
+    "@nomicfoundation/hardhat-network-helpers": "^1.0.9",
+    "@nomicfoundation/hardhat-toolbox": "^3.0.0",
+    "@nomicfoundation/hardhat-verify": "^2.0.0",
+    "@typechain/ethers-v6": "^0.5.1",
+    "@typechain/hardhat": "^9.1.0",
+    "chai": "^4.3.10",
+    "ethers": "^6.8.1",
+    "hardhat": "^2.19.0",
+    "hardhat-gas-reporter": "^1.0.9",
+    "solidity-coverage": "^0.8.5",
+    "typechain": "^8.3.2"
+  },
+  "dependencies": {
+    "@chainlink/contracts": "^0.8.0",
+    "@openzeppelin/contracts": "^5.0.0",
+    "@openzeppelin/hardhat-upgrades": "^2.3.3",
+    "@uniswap/v3-core": "^1.0.1",
+    "dotenv": "^16.3.1",
+    "prettier": "^3.1.0"
+  }
+}
