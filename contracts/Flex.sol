@@ -528,21 +528,30 @@ contract Flex is AutomationCompatibleInterface, Context, Ownable {
         external
         view
         override
-        returns (bool upkeepNeeded, bytes memory /* performData */)
+        returns (bool upkeepNeeded, bytes memory performData)
     {
-        //go through AllBets and if any are closable then trigger true
-        uint _betNumber = 1;
-        while (_betNumber <= BetNumber && upkeepNeeded == false) {
-            if (checkClosable(_betNumber)) upkeepNeeded = true;
-            _betNumber++;
+        //go through AllBets and if any are closable: add bet Number to needsClose, set upkeepNeeded to true
+        uint256[] memory needsClose;
+        uint arrayPlace = 0;
+        for (uint _betNumber = 1; _betNumber <= BetNumber; _betNumber++) {
+            if (checkClosable(_betNumber)) {
+                upkeepNeeded = true;
+                needsClose[arrayPlace] = _betNumber;
+                arrayPlace++;
+            }
         }
+        performData = abi.encode(needsClose);
     }
 
-    function performUpkeep(bytes calldata /* performData */) external override {
-        uint _betNumber = 1;
-        while (_betNumber <= BetNumber) {
-            if (checkClosable(_betNumber)) closeBet(_betNumber);
-            _betNumber++;
+    function performUpkeep(bytes calldata performData) external override {
+        uint256[] memory needsClosed = abi.decode(performData, (uint256[]));
+        for (
+            uint betInArray = 0;
+            betInArray < needsClosed.length;
+            betInArray++
+        ) {
+            if (checkClosable(needsClosed[betInArray]))
+                closeBet(needsClosed[betInArray]);
         }
     }
 }
