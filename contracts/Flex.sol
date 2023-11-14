@@ -9,6 +9,7 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
+import "@chainlink/contracts/src/v0.8/automation/AutomationCompatible.sol";
 
 interface UniV3TwapOracleInterface {
     function convertToHumanReadable(
@@ -28,7 +29,7 @@ interface UniV3TwapOracleInterface {
     ) external view returns (address);
 }
 
-contract Flex is Context, Ownable {
+contract Flex is AutomationCompatibleInterface, Context, Ownable {
     using SafeERC20 for IERC20;
     // Global variables
     uint8 private PROTOCOL_FEE;
@@ -462,7 +463,7 @@ contract Flex is Context, Ownable {
         }
     }
 
-    function checkClosable(uint _betNumber) external view returns (bool) {
+    function checkClosable(uint _betNumber) public view returns (bool) {
         if (
             block.timestamp >= AllBets[_betNumber].EndTime &&
             AllBets[_betNumber].BetStatus == Status.IN_PROCESS
@@ -519,5 +520,29 @@ contract Flex is Context, Ownable {
             );
         }
         return CurrentPrice;
+    }
+
+    function checkUpkeep(
+        bytes calldata /* checkData*/
+    )
+        external
+        view
+        override
+        returns (bool upkeepNeeded, bytes memory /* performData */)
+    {
+        //go through AllBets and if any are closable then trigger true
+        uint _betNumber = 1;
+        while (_betNumber <= BetNumber && upkeepNeeded == false) {
+            if (checkClosable(_betNumber)) upkeepNeeded = true;
+            _betNumber++;
+        }
+    }
+
+    function performUpkeep(bytes calldata /* performData */) external override {
+        uint _betNumber = 1;
+        while (_betNumber <= BetNumber) {
+            if (checkClosable(_betNumber)) closeBet(_betNumber);
+            _betNumber++;
+        }
     }
 }
