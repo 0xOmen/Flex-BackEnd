@@ -409,7 +409,7 @@ contract Flex is AutomationCompatibleInterface, Context, Ownable {
         address _collateralToken,
         uint amount
     ) internal {
-        // This should use SafeMath!!!!!!!!!!!!!!
+        // This shouldn't need safeMath after Solidity 0.8
         balances[_losingAddress][_collateralToken].depositedBalance -= amount;
         balances[_losingAddress][_collateralToken].escrowedBalance -= amount;
         balances[_winningAddress][_collateralToken].depositedBalance +=
