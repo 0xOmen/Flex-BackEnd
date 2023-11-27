@@ -2,13 +2,12 @@
 const { ethers, run, network } = require("hardhat")
 
 async function main() {
-    const initialProtocolFee = "0001"
+    const initialProtocolFee = "0005"
     const uniV3FactoryAddress = "0x1F98431c8aD98523631AE4a59f267346ea31F984" //Goerli UniV3 Factory address
 
     //be sure to specify correct UniV3TWAPOracle name/file!!!
-    const UniTwapOracleFactory = await ethers.getContractFactory(
-        "UniV3TwapOracleLib"
-    )
+    const UniTwapOracleFactory =
+        await ethers.getContractFactory("UniV3TwapOracleLib")
     console.log("Deploying Contract.....")
     const uniOracle = await UniTwapOracleFactory.deploy()
     await uniOracle.waitForDeployment()
@@ -20,7 +19,7 @@ async function main() {
     const flex = await EscrowFactory.deploy(
         initialProtocolFee,
         uniOracleContractAddress,
-        uniV3FactoryAddress
+        uniV3FactoryAddress,
     )
     await flex.waitForDeployment()
     const contractAddress = await flex.getAddress()
@@ -32,6 +31,7 @@ async function main() {
         await verify(contractAddress, [
             initialProtocolFee,
             uniOracleContractAddress,
+            uniV3FactoryAddress,
         ])
     }
 }
