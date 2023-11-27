@@ -532,7 +532,7 @@ contract Flex is AutomationCompatibleInterface, Context, Ownable {
     {
         //go through AllBets and if any are closable: add bet Number to needsClose, set upkeepNeeded to true
         uint256 arraySize = 0;
-        for (uint _betNumber = 1; _betNumber < BetNumber; _betNumber++) {
+        for (uint _betNumber = 1; _betNumber <= BetNumber; _betNumber++) {
             if (checkClosable(_betNumber)) {
                 arraySize++;
             }
@@ -542,7 +542,7 @@ contract Flex is AutomationCompatibleInterface, Context, Ownable {
         }
         uint256[] memory needsClose = new uint[](arraySize);
         uint arrayPlace = 0;
-        for (uint _betNumber = 1; _betNumber < BetNumber; _betNumber++) {
+        for (uint _betNumber = 1; _betNumber <= BetNumber; _betNumber++) {
             if (checkClosable(_betNumber)) {
                 upkeepNeeded = true;
                 needsClose[arrayPlace] = _betNumber;
