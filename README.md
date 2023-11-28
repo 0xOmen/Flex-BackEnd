@@ -24,5 +24,5 @@ Maker can define taker address as "0x0000000000000000000000000000000000000000" a
 The Flex smart contract interfaces with a custom built UniV3TwapOracle smart contract to convert Uniswap oracle price to a human readable format and determine which token is the base token (aka Token0) in Uniswap pools.
 
 ### Contracts - Goerli
-**Flex** - 0x0b6Ee1185559dD97E5BFe91996dB4b51de850EaE
+**Flex** - 0x81cD61426F8440576Ad44f462442393E865Bfa26
 **UniV3TwapOracle** - 0xDC4BA11C0Cd22A10CC468A42FFB58cF0540C36cB
