@@ -3,9 +3,9 @@ Protocol to escrow user defined contracts and other data with programmatic execu
 
 Users can define an oracle using either Chainlink feeds or UniswapV3 oracles.  Chainlink has price feeds for most major cryptocurrencies, FX currencies, and NFT floor prices.  Uniswap oracles can be used for long-tail assets however they are more prone to manipulation.  If the items being compared do not have a direct oracle then two oracles of the same type (e.g. both Chainlink or both Uniswap) can be defined.  For example, to compare price of Token A vs Token B where no A/B oracle exists, a user can queiry Chainlink oracles A/WETH and B/WETH.  
 
--Beware of Chainlink oracle dynamics.  Chainlink price oracles generally update off of 2 triggers: price deviations of 0.5% or more -or- every 3600 seconds. This can causes errors if high precision is needed.
--If calling directly to the smart contract (i.e. not via the frontend), users must be very careful how they define A/B prices and oracles.
--Uniswap oracles on Goerli are broken and should not be used.
+- Beware of Chainlink oracle dynamics.  Chainlink price oracles generally update off of 2 triggers: price deviations of 0.5% or more -or- every 3600 seconds. This can causes errors if high precision is needed.
+- If calling directly to the smart contract (i.e. not via the frontend), users must be very careful how they define A/B prices and oracles.
+- Uniswap oracles on Goerli are broken and should not be used.
 
 ### DEFINITIONS
 **Maker** - escrow creator  
@@ -25,4 +25,5 @@ The Flex smart contract interfaces with a custom built UniV3TwapOracle smart con
 
 ### Contracts - Goerli
 **Flex** - 0x81cD61426F8440576Ad44f462442393E865Bfa26
+
 **UniV3TwapOracle** - 0xDC4BA11C0Cd22A10CC468A42FFB58cF0540C36cB
