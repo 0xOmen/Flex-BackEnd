@@ -1,4 +1,0 @@
-yarn run v1.22.19
-$ /home/smithrobertd/Flex-BackEnd/node_modules/.bin/hardhat run scripts/deploy.js goerli
-
-info Visit https://yarnpkg.com/en/docs/cli/run for documentation about this command.
